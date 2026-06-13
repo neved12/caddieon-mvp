@@ -126,6 +126,7 @@ const state = {
   mapCourses: [
     {
       name: "가평 베네스트",
+      region: "경기",
       lat: 37.8456,
       lng: 127.4604,
       restaurants: [
@@ -136,6 +137,7 @@ const state = {
     },
     {
       name: "남서울 CC",
+      region: "경기",
       lat: 37.3743,
       lng: 127.0941,
       restaurants: [
@@ -146,6 +148,7 @@ const state = {
     },
     {
       name: "오크밸리 CC",
+      region: "강원",
       lat: 37.4052,
       lng: 127.8136,
       restaurants: [
@@ -154,6 +157,58 @@ const state = {
         { name: "오크밸리 산채정식", category: "한식", lat: 37.4112, lng: 127.8184, note: "골프장 가까운 식사" },
       ],
     },
+    { name: "88 컨트리클럽", region: "경기", lat: 37.2506, lng: 127.1434, restaurants: [] },
+    { name: "뉴서울 컨트리클럽", region: "경기", lat: 37.4295, lng: 127.2461, restaurants: [] },
+    { name: "레이크사이드 CC", region: "경기", lat: 37.1979, lng: 127.1692, restaurants: [] },
+    { name: "블루원 용인 CC", region: "경기", lat: 37.1568, lng: 127.2585, restaurants: [] },
+    { name: "서서울 CC", region: "경기", lat: 37.6832, lng: 126.8216, restaurants: [] },
+    { name: "수원 CC", region: "경기", lat: 37.2633, lng: 127.0756, restaurants: [] },
+    { name: "아시아나 CC", region: "경기", lat: 37.1725, lng: 127.2479, restaurants: [] },
+    { name: "양지파인 CC", region: "경기", lat: 37.2162, lng: 127.2867, restaurants: [] },
+    { name: "이천 실크밸리 GC", region: "경기", lat: 37.2254, lng: 127.5117, restaurants: [] },
+    { name: "자유 CC", region: "경기", lat: 37.2817, lng: 127.5543, restaurants: [] },
+    { name: "캐슬파인 GC", region: "경기", lat: 37.3619, lng: 127.5735, restaurants: [] },
+    { name: "한성 CC", region: "경기", lat: 37.2344, lng: 127.1209, restaurants: [] },
+    { name: "한양 CC", region: "경기", lat: 37.6417, lng: 126.8341, restaurants: [] },
+    { name: "해솔리아 CC", region: "경기", lat: 37.2012, lng: 127.3345, restaurants: [] },
+    { name: "휘닉스 평창 GC", region: "강원", lat: 37.5804, lng: 128.3262, restaurants: [] },
+    { name: "라데나 GC", region: "강원", lat: 37.8348, lng: 127.7236, restaurants: [] },
+    { name: "샌드파인 GC", region: "강원", lat: 37.7701, lng: 128.9182, restaurants: [] },
+    { name: "용평 버치힐 GC", region: "강원", lat: 37.6458, lng: 128.6816, restaurants: [] },
+    { name: "엘리시안 강촌 CC", region: "강원", lat: 37.8276, lng: 127.5892, restaurants: [] },
+    { name: "파인리즈 CC", region: "강원", lat: 38.2253, lng: 128.5551, restaurants: [] },
+    { name: "센추리21 CC", region: "강원", lat: 37.4274, lng: 128.1077, restaurants: [] },
+    { name: "대영힐스 CC", region: "충청", lat: 37.0395, lng: 127.8623, restaurants: [] },
+    { name: "우정힐스 CC", region: "충청", lat: 36.8171, lng: 127.1872, restaurants: [] },
+    { name: "천룡 CC", region: "충청", lat: 36.8996, lng: 127.5208, restaurants: [] },
+    { name: "떼제베 CC", region: "충청", lat: 36.7109, lng: 127.4683, restaurants: [] },
+    { name: "세종 에머슨 CC", region: "충청", lat: 36.5081, lng: 127.2354, restaurants: [] },
+    { name: "유성 CC", region: "충청", lat: 36.3644, lng: 127.2926, restaurants: [] },
+    { name: "롯데스카이힐 부여 CC", region: "충청", lat: 36.2899, lng: 126.9458, restaurants: [] },
+    { name: "골프존카운티 선운", region: "전라", lat: 35.4998, lng: 126.6007, restaurants: [] },
+    { name: "군산 CC", region: "전라", lat: 35.9286, lng: 126.7285, restaurants: [] },
+    { name: "무주 덕유산 CC", region: "전라", lat: 35.8937, lng: 127.7376, restaurants: [] },
+    { name: "상떼힐 익산 CC", region: "전라", lat: 36.0269, lng: 127.0592, restaurants: [] },
+    { name: "순천 부영 CC", region: "전라", lat: 34.9954, lng: 127.5207, restaurants: [] },
+    { name: "파인비치 골프링크스", region: "전라", lat: 34.4452, lng: 126.4049, restaurants: [] },
+    { name: "해피니스 CC", region: "전라", lat: 35.0844, lng: 126.7817, restaurants: [] },
+    { name: "골프존카운티 감포", region: "경상", lat: 35.7886, lng: 129.4881, restaurants: [] },
+    { name: "경주 신라 CC", region: "경상", lat: 35.7908, lng: 129.2959, restaurants: [] },
+    { name: "동래 베네스트", region: "경상", lat: 35.2736, lng: 129.0907, restaurants: [] },
+    { name: "보라 CC", region: "경상", lat: 35.4604, lng: 129.2146, restaurants: [] },
+    { name: "블루원 디아너스 CC", region: "경상", lat: 35.7679, lng: 129.2988, restaurants: [] },
+    { name: "아시아드 CC", region: "경상", lat: 35.3341, lng: 129.2562, restaurants: [] },
+    { name: "양산 CC", region: "경상", lat: 35.4047, lng: 129.0597, restaurants: [] },
+    { name: "에이원 CC", region: "경상", lat: 35.4377, lng: 129.1179, restaurants: [] },
+    { name: "창원 CC", region: "경상", lat: 35.2595, lng: 128.6979, restaurants: [] },
+    { name: "통도 파인이스트 CC", region: "경상", lat: 35.4937, lng: 129.0702, restaurants: [] },
+    { name: "핀크스 GC", region: "제주", lat: 33.3262, lng: 126.3936, restaurants: [] },
+    { name: "나인브릿지", region: "제주", lat: 33.3571, lng: 126.3847, restaurants: [] },
+    { name: "블랙스톤 제주", region: "제주", lat: 33.3467, lng: 126.3397, restaurants: [] },
+    { name: "롯데스카이힐 제주 CC", region: "제주", lat: 33.2799, lng: 126.3912, restaurants: [] },
+    { name: "엘리시안 제주 CC", region: "제주", lat: 33.3901, lng: 126.3528, restaurants: [] },
+    { name: "오라 CC", region: "제주", lat: 33.4483, lng: 126.5036, restaurants: [] },
+    { name: "제주 CC", region: "제주", lat: 33.4269, lng: 126.5609, restaurants: [] },
   ],
   profile: {
     nickname: "민구",
@@ -1010,7 +1065,7 @@ function toggleJobVisibility(jobId) {
 
 function renderWeatherCourses() {
   $("#weatherCourseSelect").innerHTML = state.mapCourses
-    .map((course) => `<option value="${course.name}">${course.name}</option>`)
+    .map((course) => `<option value="${course.name}">${course.region ? `${course.region} · ` : ""}${course.name}</option>`)
     .join("");
 }
 
@@ -1144,7 +1199,7 @@ function selectedMapCourse() {
 
 function renderMapCourses() {
   $("#mapCourseSelect").innerHTML = state.mapCourses
-    .map((course) => `<option value="${course.name}">${course.name}</option>`)
+    .map((course) => `<option value="${course.name}">${course.region ? `${course.region} · ` : ""}${course.name}</option>`)
     .join("");
 }
 

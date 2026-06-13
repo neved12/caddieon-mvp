@@ -73,6 +73,18 @@ button {
   font-size: 21px;
 }
 
+.section-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sync-status {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .eyebrow {
   margin: 0 0 2px;
   color: var(--brand);

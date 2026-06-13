@@ -42,8 +42,12 @@
       <section id="jobs" class="view is-visible">
         <div class="section-head">
           <h2>캐디 채용 공고</h2>
-          <button class="primary-button" id="openJobForm">공고 등록</button>
+          <div class="section-actions">
+            <button class="ghost-button" id="syncJobs">공고 새로고침</button>
+            <button class="primary-button" id="openJobForm">공고 등록</button>
+          </div>
         </div>
+        <p class="sync-status" id="jobSyncStatus">구글시트 주소를 연결하면 채용 공고가 자동으로 업데이트됩니다.</p>
         <div class="filter-row">
           <select id="regionFilter" aria-label="지역 선택">
             <option value="all">전체 지역</option>

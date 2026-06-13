@@ -280,6 +280,7 @@ function normalizeJob(job, index = 0) {
   return {
     id: job.id || `job-${Date.now()}-${index}`,
     status: job.status || "approved",
+    source: job.source || "sample",
     rounds: job.rounds || 0,
     meal: job.meal || "협의",
     training: job.training || (job.experience?.includes("신입") ? "가능" : "협의"),
@@ -289,6 +290,121 @@ function normalizeJob(job, index = 0) {
     contact: job.contact || "앱 문의",
     ...job,
   };
+}
+
+function getJobSheetCsvUrl() {
+  return window.CADDIEON_CONFIG?.jobSheetCsvUrl?.trim() || "";
+}
+
+function setJobSyncStatus(message) {
+  const status = $("#jobSyncStatus");
+  if (status) status.textContent = message;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let insideQuote = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (char === '"' && insideQuote && next === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      insideQuote = !insideQuote;
+    } else if (char === "," && !insideQuote) {
+      row.push(cell.trim());
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !insideQuote) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(cell.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  row.push(cell.trim());
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function pickColumn(row, keys, fallback = "") {
+  for (const key of keys) {
+    if (row[key]) return row[key];
+  }
+  return fallback;
+}
+
+function sheetRowToJob(row, index) {
+  const course = pickColumn(row, ["골프장명", "골프장", "course", "name"]);
+  if (!course) return null;
+
+  return normalizeJob(
+    {
+      id: pickColumn(row, ["id", "공고ID"], `sheet-job-${index}-${course}`),
+      source: "sheet",
+      course,
+      region: pickColumn(row, ["지역", "region"], "경기"),
+      type: pickColumn(row, ["근무형태", "형태", "type"], "정규"),
+      pay: Number(pickColumn(row, ["캐디피", "피", "pay"], "0").replace(/[^0-9]/g, "")) || 0,
+      housing: pickColumn(row, ["숙소", "housing"], "협의"),
+      experience: pickColumn(row, ["경력조건", "경력", "experience"], "신입 가능"),
+      rounds: Number(pickColumn(row, ["월평균라운드", "라운드", "rounds"], "0").replace(/[^0-9]/g, "")) || 0,
+      meal: pickColumn(row, ["식사", "meal"], "협의"),
+      training: pickColumn(row, ["신입교육", "교육", "training"], "협의"),
+      transport: pickColumn(row, ["셔틀교통", "교통", "transport"], "협의"),
+      payday: pickColumn(row, ["정산일", "payday"], "협의"),
+      days: pickColumn(row, ["근무요일", "요일", "days"], "협의"),
+      contact: pickColumn(row, ["연락처", "문의", "contact"], "앱 문의"),
+      detail: pickColumn(row, ["상세조건", "상세", "detail"], "구글시트에서 불러온 채용 공고입니다."),
+      status: pickColumn(row, ["상태", "status"], "approved"),
+    },
+    index
+  );
+}
+
+async function syncJobsFromSheet({ silent = false } = {}) {
+  const url = getJobSheetCsvUrl();
+  if (!url) {
+    setJobSyncStatus("구글시트 CSV 주소가 아직 연결되지 않았습니다. config.js에 jobSheetCsvUrl을 넣으면 자동 업데이트됩니다.");
+    return;
+  }
+
+  if (!silent) setJobSyncStatus("구글시트 채용 공고를 불러오는 중입니다.");
+
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("sheet request failed");
+
+    const rows = parseCsv(await response.text());
+    const headers = rows.shift()?.map((header) => header.trim()) || [];
+    const sheetJobs = rows
+      .map((cells, index) => {
+        const row = Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex]?.trim() || ""]));
+        return sheetRowToJob(row, index);
+      })
+      .filter(Boolean);
+
+    if (!sheetJobs.length) {
+      setJobSyncStatus("구글시트에 표시할 채용 공고가 없습니다. 첫 줄 제목과 공고 내용을 확인해주세요.");
+      return;
+    }
+
+    const localJobs = state.jobs.filter((job) => job.source === "local");
+    state.jobs = [...sheetJobs, ...localJobs];
+    renderJobs();
+    renderAdmin();
+    setJobSyncStatus(`구글시트에서 채용 공고 ${sheetJobs.length}건을 불러왔습니다.`);
+  } catch (error) {
+    setJobSyncStatus("구글시트 공고를 불러오지 못했습니다. 시트를 웹에 게시했는지, CSV 주소가 맞는지 확인해주세요.");
+  }
 }
 
 function loadJobData() {
@@ -1410,6 +1526,7 @@ $("#regionFilter").addEventListener("change", renderJobs);
 $("#jobTypeFilter").addEventListener("change", renderJobs);
 $("#housingFilter").addEventListener("change", renderJobs);
 $("#newbieFilter").addEventListener("change", renderJobs);
+$("#syncJobs").addEventListener("click", () => syncJobsFromSheet());
 
 $("#jobList").addEventListener("click", (event) => {
   const saveButton = event.target.closest(".save-job");
@@ -1459,6 +1576,7 @@ $("#jobForm").addEventListener("submit", (event) => {
   event.preventDefault();
   state.jobs.unshift({
     id: `job-${Date.now()}`,
+    source: "local",
     course: $("#jobCourse").value,
     region: $("#jobRegion").value,
     type: $("#jobType").value,
@@ -1706,6 +1824,7 @@ $("#incomeDate").valueAsDate = new Date();
 $("#currentOrigin").textContent = window.location.origin;
 renderProfile();
 renderJobs();
+syncJobsFromSheet({ silent: true });
 renderIncome();
 renderTalks();
 renderReviews();

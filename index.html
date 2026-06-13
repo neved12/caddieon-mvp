@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>캐디온 MVP</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">전국 캐디 전용 플랫폼</p>
+          <h1>캐디온</h1>
+        </div>
+        <button class="character-button" id="openProfile" aria-label="내 캐릭터 꾸미기">
+          <span class="character-avatar avatar-small" id="profileAvatarMini"></span>
+        </button>
+      </section>
+
+      <section class="summary-band" aria-label="이번 달 수입 요약">
+        <div>
+          <span>이번 달 예상 수입</span>
+          <strong id="monthlyTotal">0원</strong>
+        </div>
+        <div>
+          <span>라운드</span>
+          <strong id="roundCount">0회</strong>
+        </div>
+      </section>
+
+      <nav class="quick-tabs" aria-label="주요 메뉴">
+        <button class="tab is-active" data-view="jobs">채용</button>
+        <button class="tab" data-view="income">정산</button>
+        <button class="tab" data-view="talk">수다방</button>
+        <button class="tab" data-view="reviews">리뷰</button>
+        <button class="tab" data-view="weather">날씨</button>
+        <button class="tab" data-view="map">맛집지도</button>
+        <button class="tab" data-view="admin">관리</button>
+      </nav>
+
+      <section id="jobs" class="view is-visible">
+        <div class="section-head">
+          <h2>캐디 채용 공고</h2>
+          <button class="primary-button" id="openJobForm">공고 등록</button>
+        </div>
+        <div class="filter-row">
+          <select id="regionFilter" aria-label="지역 선택">
+            <option value="all">전체 지역</option>
+            <option value="경기">경기</option>
+            <option value="강원">강원</option>
+            <option value="충청">충청</option>
+            <option value="전라">전라</option>
+            <option value="경상">경상</option>
+            <option value="제주">제주</option>
+          </select>
+          <select id="jobTypeFilter" aria-label="근무 형태 선택">
+            <option value="all">전체 형태</option>
+            <option value="정규">정규</option>
+            <option value="프리랜서">프리랜서</option>
+            <option value="주말">주말</option>
+          </select>
+          <select id="housingFilter" aria-label="숙소 제공 선택">
+            <option value="all">숙소 전체</option>
+            <option value="제공">숙소 제공</option>
+            <option value="협의">숙소 협의</option>
+            <option value="미제공">숙소 미제공</option>
+          </select>
+          <select id="newbieFilter" aria-label="신입 가능 선택">
+            <option value="all">경력 전체</option>
+            <option value="yes">신입 가능</option>
+            <option value="no">경력 우대</option>
+          </select>
+        </div>
+        <div class="card-list" id="jobList"></div>
+      </section>
+
+      <section id="income" class="view">
+        <div class="section-head">
+          <h2>소득 정산</h2>
+          <button class="primary-button" id="addIncome">수입 추가</button>
+        </div>
+        <div class="income-dashboard">
+          <div class="goal-card">
+            <div>
+              <span>이번 달 목표</span>
+              <strong id="goalAmountText">3,000,000원</strong>
+            </div>
+            <label>
+              목표 수정
+              <input type="number" id="monthlyGoal" min="0" step="10000" value="3000000" />
+            </label>
+            <div class="progress-track" aria-label="목표 수입 달성률">
+              <span id="goalProgressBar"></span>
+            </div>
+            <p id="goalProgressText">0% 달성</p>
+          </div>
+        </div>
+        <form class="input-grid" id="incomeForm">
+          <label>
+            날짜
+            <input type="date" id="incomeDate" required />
+          </label>
+          <label>
+            골프장
+            <input type="text" id="incomeCourse" placeholder="예: 남서울CC" required />
+          </label>
+          <label>
+            캐디피
+            <input type="number" id="caddieFee" min="0" step="1000" placeholder="150000" required />
+          </label>
+          <label>
+            팁
+            <input type="number" id="tipIncome" min="0" step="1000" placeholder="30000" required />
+          </label>
+          <label>
+            기타수입
+            <input type="number" id="extraIncome" min="0" step="1000" placeholder="10000" />
+          </label>
+        </form>
+        <div class="stats-grid income-stats">
+          <div>
+            <span>캐디피</span>
+            <strong id="feeTotal">0원</strong>
+          </div>
+          <div>
+            <span>팁</span>
+            <strong id="tipTotal">0원</strong>
+          </div>
+          <div>
+            <span>기타수입</span>
+            <strong id="extraTotal">0원</strong>
+          </div>
+          <div>
+            <span>평균 라운드 수입</span>
+            <strong id="averageRoundIncome">0원</strong>
+          </div>
+        </div>
+        <div class="section-head compact-head">
+          <h2>월별 수입 캘린더</h2>
+          <span id="calendarMonthLabel"></span>
+        </div>
+        <div class="calendar-grid" id="incomeCalendar"></div>
+        <div class="section-head compact-head">
+          <h2>골프장별 수입 순위</h2>
+        </div>
+        <div class="course-rank-list" id="courseRankList"></div>
+        <div class="section-head compact-head">
+          <h2>라운드 기록</h2>
+        </div>
+        <div class="card-list" id="incomeList"></div>
+      </section>
+
+      <section id="talk" class="view">
+        <div class="section-head">
+          <h2>캐디 수다방</h2>
+          <button class="primary-button" id="postTalk">글쓰기</button>
+        </div>
+        <div class="filter-row">
+          <select id="talkCategoryFilter" aria-label="수다방 카테고리 선택">
+            <option value="all">전체 글</option>
+            <option value="현장수다">현장수다</option>
+            <option value="질문">질문</option>
+            <option value="장비추천">장비추천</option>
+            <option value="신입도움">신입도움</option>
+          </select>
+          <select id="talkSort" aria-label="수다방 정렬 선택">
+            <option value="latest">최신순</option>
+            <option value="popular">인기순</option>
+            <option value="comments">댓글순</option>
+          </select>
+        </div>
+        <form class="post-box" id="talkForm">
+          <div class="input-grid">
+            <label>
+              카테고리
+              <select id="talkCategory">
+                <option>현장수다</option>
+                <option>질문</option>
+                <option>장비추천</option>
+                <option>신입도움</option>
+              </select>
+            </label>
+            <label>
+              작성 방식
+              <select id="talkAuthorMode">
+                <option value="anonymous">익명</option>
+                <option value="profile">내 캐릭터</option>
+              </select>
+            </label>
+          </div>
+          <input type="text" id="talkTitle" placeholder="무슨 이야기를 나눌까요?" required />
+          <textarea id="talkBody" rows="3" placeholder="현장 이야기, 궁금한 점, 정보 공유를 남겨보세요." required></textarea>
+        </form>
+        <div class="card-list" id="talkList"></div>
+      </section>
+
+      <section id="reviews" class="view">
+        <div class="section-head">
+          <h2>골프장 리뷰</h2>
+          <button class="primary-button" id="postReview">리뷰 등록</button>
+        </div>
+        <div class="filter-row">
+          <select id="reviewCourseFilter" aria-label="골프장 리뷰 필터">
+            <option value="all">전체 골프장</option>
+          </select>
+          <select id="reviewSort" aria-label="리뷰 정렬">
+            <option value="latest">최신순</option>
+            <option value="score">평점순</option>
+            <option value="helpful">도움순</option>
+          </select>
+        </div>
+        <form class="input-grid" id="reviewForm">
+          <label>
+            골프장
+            <input type="text" id="reviewCourse" placeholder="예: 레이크힐스" required />
+          </label>
+          <label>
+            캐디 대우
+            <select id="reviewTreatment">
+              <option value="5">5점</option>
+              <option value="4">4점</option>
+              <option value="3">3점</option>
+              <option value="2">2점</option>
+              <option value="1">1점</option>
+            </select>
+          </label>
+          <label>
+            동선/코스 난이도
+            <select id="reviewFlow">
+              <option value="5">편함 5점</option>
+              <option value="4">4점</option>
+              <option value="3">3점</option>
+              <option value="2">2점</option>
+              <option value="1">힘듦 1점</option>
+            </select>
+          </label>
+          <label>
+            정산 투명성
+            <select id="reviewSettlement">
+              <option value="5">5점</option>
+              <option value="4">4점</option>
+              <option value="3">3점</option>
+              <option value="2">2점</option>
+              <option value="1">1점</option>
+            </select>
+          </label>
+          <label>
+            식사/휴게공간
+            <select id="reviewRest">
+              <option value="5">5점</option>
+              <option value="4">4점</option>
+              <option value="3">3점</option>
+              <option value="2">2점</option>
+              <option value="1">1점</option>
+            </select>
+          </label>
+          <label>
+            고객 응대 난이도
+            <select id="reviewCustomer">
+              <option value="5">편함 5점</option>
+              <option value="4">4점</option>
+              <option value="3">3점</option>
+              <option value="2">2점</option>
+              <option value="1">힘듦 1점</option>
+            </select>
+          </label>
+          <label>
+            신입 추천
+            <select id="reviewNewbie">
+              <option value="yes">추천</option>
+              <option value="no">비추천</option>
+            </select>
+          </label>
+          <label class="wide">
+            장점
+            <input type="text" id="reviewPros" placeholder="예: 정산 빠름, 배정 안정적" required />
+          </label>
+          <label class="wide">
+            주의점
+            <input type="text" id="reviewCons" placeholder="예: 주말 고객 응대 강도 높음" required />
+          </label>
+          <label class="wide">
+            캐디 관점 후기
+            <textarea id="reviewText" rows="3" placeholder="동선, 대우, 정산, 식사 등을 적어주세요." required></textarea>
+          </label>
+        </form>
+        <div class="card-list" id="reviewList"></div>
+      </section>
+
+      <section id="weather" class="view">
+        <div class="section-head">
+          <h2>골프장 날씨</h2>
+          <button class="primary-button" id="refreshWeather">새로고침</button>
+        </div>
+        <div class="filter-row">
+          <select id="weatherCourseSelect" aria-label="날씨 골프장 선택"></select>
+          <select id="weatherForecastHours" aria-label="시간대별 예보 범위">
+            <option value="6">6시간 예보</option>
+            <option value="12">12시간 예보</option>
+            <option value="24">24시간 예보</option>
+          </select>
+        </div>
+        <div class="weather-hero">
+          <div>
+            <span id="weatherCourse">가평 베네스트</span>
+            <strong id="weatherTemp">23도</strong>
+          </div>
+          <p id="weatherDesc">오전 라운드 적합, 오후 약한 바람</p>
+        </div>
+        <div class="weather-score">
+          <div>
+            <span>라운드 적합도</span>
+            <strong id="weatherScore">확인 중</strong>
+          </div>
+          <p id="weatherAdvice">실제 날씨를 불러오면 라운드 팁이 표시됩니다.</p>
+        </div>
+        <div class="card-list" id="weatherList"></div>
+      </section>
+
+      <section id="map" class="view">
+        <div class="section-head">
+          <h2>골프장 주변 맛집지도</h2>
+          <button class="primary-button" id="loadKakaoMap">지도 불러오기</button>
+        </div>
+        <div class="map-setup" id="mapSetup">
+          <label>
+            카카오맵 JavaScript 키
+            <input type="password" id="kakaoKeyInput" placeholder="발급받은 JavaScript 키를 입력하세요" />
+          </label>
+          <p>
+            키를 입력하거나 config.js에 저장하면 실제 카카오맵이 표시됩니다.
+            카카오 개발자 사이트에서 현재 미리보기 주소
+            <strong id="currentOrigin">확인 중</strong>
+            를 JavaScript SDK 도메인으로 등록해야 합니다.
+          </p>
+        </div>
+        <label class="course-picker">
+          골프장 선택
+          <select id="mapCourseSelect"></select>
+        </label>
+        <div class="filter-row map-controls">
+          <select id="mapRadius" aria-label="맛집 검색 반경">
+            <option value="3000">반경 3km</option>
+            <option value="5000" selected>반경 5km</option>
+            <option value="10000">반경 10km</option>
+            <option value="20000">반경 20km</option>
+          </select>
+          <select id="mapResultLimit" aria-label="맛집 검색 개수">
+            <option value="5">5곳 보기</option>
+            <option value="10" selected>10곳 보기</option>
+            <option value="15">15곳 보기</option>
+          </select>
+        </div>
+        <div class="map-panel">
+          <div id="kakaoMap" aria-label="카카오맵 영역">
+            <div class="map-placeholder">
+              <strong>카카오맵 대기 중</strong>
+              <span>키를 입력하고 지도를 불러오면 골프장과 주변 맛집 마커가 표시됩니다.</span>
+            </div>
+          </div>
+          <p id="mapStatus" class="map-status">카카오맵 API 키가 아직 연결되지 않았습니다.</p>
+        </div>
+        <div class="card-list" id="restaurantList"></div>
+      </section>
+
+      <section id="admin" class="view">
+        <div class="section-head">
+          <h2>관리자 페이지</h2>
+          <button class="primary-button" id="refreshAdmin">새로고침</button>
+        </div>
+        <div class="admin-metrics">
+          <div>
+            <span>채용 공고</span>
+            <strong id="adminJobCount">0</strong>
+          </div>
+          <div>
+            <span>수다방 글</span>
+            <strong id="adminTalkCount">0</strong>
+          </div>
+          <div>
+            <span>골프장 리뷰</span>
+            <strong id="adminReviewCount">0</strong>
+          </div>
+          <div>
+            <span>신고 대기</span>
+            <strong id="adminReportCount">0</strong>
+          </div>
+        </div>
+        <div class="admin-tabs" aria-label="관리 항목">
+          <button class="admin-tab is-active" data-admin-panel="reports">신고</button>
+          <button class="admin-tab" data-admin-panel="jobs">공고</button>
+          <button class="admin-tab" data-admin-panel="community">커뮤니티</button>
+        </div>
+        <div class="admin-panel is-visible" id="adminReports"></div>
+        <div class="admin-panel" id="adminJobs"></div>
+        <div class="admin-panel" id="adminCommunity"></div>
+      </section>
+    </main>
+
+    <div class="modal" id="jobModal" aria-hidden="true">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="jobModalTitle">
+        <div class="section-head">
+          <h2 id="jobModalTitle">정형 채용 공고 등록</h2>
+          <button class="ghost-button" id="closeJobForm">닫기</button>
+        </div>
+        <form class="input-grid" id="jobForm">
+          <label>
+            골프장명
+            <input type="text" id="jobCourse" required />
+          </label>
+          <label>
+            지역
+            <select id="jobRegion">
+              <option>경기</option>
+              <option>강원</option>
+              <option>충청</option>
+              <option>전라</option>
+              <option>경상</option>
+              <option>제주</option>
+            </select>
+          </label>
+          <label>
+            근무 형태
+            <select id="jobType">
+              <option>정규</option>
+              <option>프리랜서</option>
+              <option>주말</option>
+            </select>
+          </label>
+          <label>
+            캐디피
+            <input type="number" id="jobPay" min="0" step="1000" required />
+          </label>
+          <label>
+            숙소
+            <select id="jobHousing">
+              <option>제공</option>
+              <option>미제공</option>
+              <option>협의</option>
+            </select>
+          </label>
+          <label>
+            경력 조건
+            <input type="text" id="jobExperience" placeholder="신입 가능 / 1년 이상" required />
+          </label>
+          <label>
+            월 평균 라운드
+            <input type="number" id="jobRounds" min="0" step="1" placeholder="22" required />
+          </label>
+          <label>
+            식사
+            <select id="jobMeal">
+              <option>제공</option>
+              <option>일부 제공</option>
+              <option>미제공</option>
+              <option>협의</option>
+            </select>
+          </label>
+          <label>
+            신입 교육
+            <select id="jobTraining">
+              <option>가능</option>
+              <option>불가</option>
+              <option>협의</option>
+            </select>
+          </label>
+          <label>
+            셔틀/교통
+            <select id="jobTransport">
+              <option>셔틀 제공</option>
+              <option>교통비 지원</option>
+              <option>자차 필요</option>
+              <option>협의</option>
+            </select>
+          </label>
+          <label>
+            정산일
+            <input type="text" id="jobPayday" placeholder="예: 매월 10일" required />
+          </label>
+          <label>
+            근무 가능 요일
+            <input type="text" id="jobDays" placeholder="예: 주 5일 / 주말 가능" required />
+          </label>
+          <label class="wide">
+            문의 연락처
+            <input type="text" id="jobContact" placeholder="예: 채용 담당자 010-0000-0000" required />
+          </label>
+          <label class="wide">
+            상세 조건
+            <textarea id="jobDetail" rows="3" placeholder="근무일, 복장, 교육, 문의 방법 등" required></textarea>
+          </label>
+          <button class="primary-button wide" type="submit">공고 저장</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="jobDetailModal" aria-hidden="true">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="jobDetailTitle">
+        <div class="section-head">
+          <h2 id="jobDetailTitle">채용 공고 상세</h2>
+          <button class="ghost-button" id="closeJobDetail">닫기</button>
+        </div>
+        <div id="jobDetailContent"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="talkDetailModal" aria-hidden="true">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="talkDetailTitle">
+        <div class="section-head">
+          <h2 id="talkDetailTitle">수다방 글</h2>
+          <button class="ghost-button" id="closeTalkDetail">닫기</button>
+        </div>
+        <div id="talkDetailContent"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="profileModal" aria-hidden="true">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+        <div class="section-head">
+          <h2 id="profileModalTitle">나만의 캐디 캐릭터</h2>
+          <button class="ghost-button" id="closeProfile">닫기</button>
+        </div>
+        <div class="character-preview">
+          <div class="character-avatar avatar-large" id="profileAvatarLarge"></div>
+          <strong id="profilePreviewName">민구</strong>
+          <span id="profilePreviewMeta">경기 · 3년차 캐디</span>
+        </div>
+        <form class="input-grid" id="profileForm">
+          <label>
+            닉네임
+            <input type="text" id="profileNickname" maxlength="12" required />
+          </label>
+          <label>
+            활동 지역
+            <select id="profileRegion">
+              <option>경기</option>
+              <option>강원</option>
+              <option>충청</option>
+              <option>전라</option>
+              <option>경상</option>
+              <option>제주</option>
+            </select>
+          </label>
+          <label>
+            경력
+            <select id="profileCareer">
+              <option>신입 캐디</option>
+              <option>1년차 캐디</option>
+              <option>2년차 캐디</option>
+              <option>3년차 캐디</option>
+              <option>5년차 이상</option>
+              <option>베테랑 캐디</option>
+            </select>
+          </label>
+          <label>
+            피부톤
+            <select id="profileSkin">
+              <option value="#f4c7a1">웜 베이지</option>
+              <option value="#e8b78f">피치</option>
+              <option value="#d99b73">태닝</option>
+              <option value="#8f5f45">브론즈</option>
+            </select>
+          </label>
+          <label>
+            헤어
+            <select id="profileHair">
+              <option value="bob">단발</option>
+              <option value="cap">캡 모자</option>
+              <option value="wave">웨이브</option>
+              <option value="short">숏컷</option>
+            </select>
+          </label>
+          <label>
+            표정
+            <select id="profileMood">
+              <option value="smile">밝은 미소</option>
+              <option value="calm">차분함</option>
+              <option value="wink">윙크</option>
+            </select>
+          </label>
+          <label class="wide">
+            한 줄 소개
+            <input type="text" id="profileBio" maxlength="36" placeholder="예: 비 오는 날도 밝게 뛰는 캐디" />
+          </label>
+          <div class="wide swatch-field">
+            <span>의상 색상</span>
+            <div class="swatches" id="profileSwatches">
+              <button type="button" class="swatch is-selected" data-color="#146c43" style="--swatch:#146c43" aria-label="그린"></button>
+              <button type="button" class="swatch" data-color="#295f98" style="--swatch:#295f98" aria-label="블루"></button>
+              <button type="button" class="swatch" data-color="#b45b36" style="--swatch:#b45b36" aria-label="코랄"></button>
+              <button type="button" class="swatch" data-color="#6a4c93" style="--swatch:#6a4c93" aria-label="퍼플"></button>
+              <button type="button" class="swatch" data-color="#2f6f73" style="--swatch:#2f6f73" aria-label="틸"></button>
+            </div>
+          </div>
+          <button class="primary-button wide" type="submit">프로필 저장</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

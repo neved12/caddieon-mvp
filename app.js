@@ -53,11 +53,32 @@ const state = {
     },
   ],
   savedJobs: [],
-  incomeGoal: 3000000,
+  incomeGoal: 4560000,
   income: [
-    { date: "2026-06-03", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
-    { date: "2026-06-06", course: "남서울 CC", fee: 150000, tip: 50000, extra: 10000 },
-    { date: "2026-06-11", course: "레이크힐스", fee: 155000, tip: 20000, extra: 0 },
+    { date: "2026-06-01", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-02", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-03", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-04", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-05", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-06", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-07", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-08", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-09", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-10", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-11", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-12", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-13", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-14", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-15", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-16", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-17", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-18", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-19", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-20", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-21", course: "가평 베네스트", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-22", course: "남서울 CC", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-23", course: "레이크힐스", fee: 160000, tip: 30000, extra: 0 },
+    { date: "2026-06-24", course: "스카이밸리 CC", fee: 160000, tip: 30000, extra: 0 },
   ],
   talks: [
     {
@@ -3867,11 +3888,21 @@ function saveProfile() {
   localStorage.setItem("caddieon-profile", JSON.stringify(state.profile));
 }
 
+function isLegacyIncomeSeed(income) {
+  if (!Array.isArray(income) || income.length !== 3) return false;
+  const dates = income.map((item) => item.date).sort().join(",");
+  return dates === "2026-06-03,2026-06-06,2026-06-11";
+}
+
 function loadIncomeData() {
   try {
     const saved = localStorage.getItem("caddieon-income");
     if (saved) {
       const data = JSON.parse(saved);
+      if (isLegacyIncomeSeed(data.income)) {
+        localStorage.removeItem("caddieon-income");
+        return;
+      }
       state.income = (data.income || state.income).map((item) => ({
         ...item,
         extra: item.extra || 0,

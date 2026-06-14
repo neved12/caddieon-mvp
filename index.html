@@ -33,6 +33,8 @@
         <button class="tab is-active" data-view="jobs">채용</button>
         <button class="tab" data-view="income">정산</button>
         <button class="tab" data-view="talk">수다방</button>
+        <button class="tab" data-view="reels">릴스</button>
+        <button class="tab" data-view="market">당근</button>
         <button class="tab" data-view="reviews">리뷰</button>
         <button class="tab" data-view="weather">날씨</button>
         <button class="tab" data-view="map">맛집지도</button>
@@ -197,6 +199,86 @@
           <textarea id="talkBody" rows="3" placeholder="현장 이야기, 궁금한 점, 정보 공유를 남겨보세요." required></textarea>
         </form>
         <div class="card-list" id="talkList"></div>
+      </section>
+
+      <section id="reels" class="view">
+        <div class="section-head">
+          <h2>캐디온 릴스</h2>
+          <button class="primary-button" id="postReel">릴스 올리기</button>
+        </div>
+        <form class="post-box reel-form" id="reelForm">
+          <input type="text" id="reelTitle" placeholder="릴스 제목을 적어보세요" required />
+          <textarea id="reelCaption" rows="2" placeholder="스윙, 라운드, 자랑하고 싶은 순간을 자유롭게 적어보세요." required></textarea>
+          <div class="input-grid">
+            <label>
+              영상 URL
+              <input type="url" id="reelUrl" placeholder="https://.../my-swing.mp4" />
+            </label>
+            <label>
+              영상 파일
+              <input type="file" id="reelFile" accept="video/*" />
+            </label>
+          </div>
+          <p class="sync-status">영상 URL을 붙이거나 짧은 영상 파일을 선택하면 릴스 피드에서 바로 재생됩니다.</p>
+        </form>
+        <div class="reel-feed" id="reelList"></div>
+      </section>
+
+      <section id="market" class="view">
+        <div class="section-head">
+          <h2>캐디온 당근</h2>
+          <button class="primary-button" id="postMarketItem">판매글 올리기</button>
+        </div>
+        <div class="filter-row">
+          <select id="marketCategoryFilter" aria-label="중고거래 카테고리 선택">
+            <option value="all">전체 물품</option>
+            <option value="골프용품">골프용품</option>
+            <option value="의류/잡화">의류/잡화</option>
+            <option value="캐디장비">캐디장비</option>
+            <option value="기타">기타</option>
+          </select>
+          <select id="marketStatusFilter" aria-label="거래 상태 선택">
+            <option value="all">전체 상태</option>
+            <option value="판매중">판매중</option>
+            <option value="예약중">예약중</option>
+            <option value="거래완료">거래완료</option>
+          </select>
+          <select id="marketSort" aria-label="중고거래 정렬 선택">
+            <option value="latest">최신순</option>
+            <option value="price-low">낮은 가격순</option>
+            <option value="price-high">높은 가격순</option>
+          </select>
+        </div>
+        <form class="post-box market-form" id="marketForm">
+          <div class="input-grid">
+            <label>
+              카테고리
+              <select id="marketCategory">
+                <option>골프용품</option>
+                <option>의류/잡화</option>
+                <option>캐디장비</option>
+                <option>기타</option>
+              </select>
+            </label>
+            <label>
+              거래 지역
+              <input type="text" id="marketRegion" placeholder="예: 경기 용인, 제주 서귀포" required />
+            </label>
+          </div>
+          <input type="text" id="marketTitle" placeholder="예: 거의 새것 거리측정기 팝니다" required />
+          <textarea id="marketDescription" rows="3" placeholder="상태, 사용 기간, 구성품, 거래 방법을 적어주세요." required></textarea>
+          <div class="input-grid">
+            <label>
+              가격
+              <input type="number" id="marketPrice" min="0" step="1000" placeholder="50000" required />
+            </label>
+            <label>
+              사진 URL
+              <input type="url" id="marketImageUrl" placeholder="https://.../item.jpg" />
+            </label>
+          </div>
+        </form>
+        <div class="market-list" id="marketList"></div>
       </section>
 
       <section id="reviews" class="view">
@@ -603,6 +685,6 @@
     </div>
 
     <script src="./config.js"></script>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=20260614-reels-free"></script>
   </body>
 </html>

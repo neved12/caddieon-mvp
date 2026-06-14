@@ -146,6 +146,18 @@ const state = {
       createdAt: "2026-06-12T20:30:00",
     },
   ],
+  supportRequests: [
+    {
+      id: "support-1",
+      type: "반영 요청",
+      title: "골프장 리뷰에 사진도 올릴 수 있으면 좋겠어요",
+      body: "휴게실이나 식사 사진을 같이 남기면 신입 캐디들이 더 참고하기 좋을 것 같아요.",
+      contact: "카톡 cadion-user",
+      author: "민구",
+      status: "접수",
+      createdAt: "2026-06-13T19:00:00",
+    },
+  ],
   reviews: [
     {
       id: "review-1",
@@ -267,6 +279,7 @@ const state = {
   ],
   profile: {
     nickname: "민구",
+    memberType: "caddie",
     region: "경기",
     career: "3년차 캐디",
     skin: "#f4c7a1",
@@ -4160,6 +4173,44 @@ function saveMarketData() {
   );
 }
 
+function normalizeSupportRequest(request, index = 0) {
+  return {
+    id: request.id || `support-${Date.now()}-${index}`,
+    type: request.type || "질문",
+    title: request.title || "문의",
+    body: request.body || "",
+    contact: request.contact || "",
+    author: request.author || state.profile.nickname || "캐디",
+    status: request.status || "접수",
+    createdAt: request.createdAt || new Date().toISOString(),
+    ...request,
+  };
+}
+
+function loadSupportData() {
+  try {
+    const saved = localStorage.getItem("caddieon-support");
+    if (saved) {
+      const data = JSON.parse(saved);
+      state.supportRequests = (data.supportRequests || state.supportRequests).map(normalizeSupportRequest);
+    } else {
+      state.supportRequests = state.supportRequests.map(normalizeSupportRequest);
+    }
+  } catch (error) {
+    localStorage.removeItem("caddieon-support");
+    state.supportRequests = state.supportRequests.map(normalizeSupportRequest);
+  }
+}
+
+function saveSupportData() {
+  localStorage.setItem(
+    "caddieon-support",
+    JSON.stringify({
+      supportRequests: state.supportRequests,
+    })
+  );
+}
+
 function normalizeReview(review, index = 0) {
   const score = review.score || 4;
   return {
@@ -4216,7 +4267,7 @@ function renderProfile() {
   renderCharacter($("#profileAvatarMini"));
   renderCharacter($("#profileAvatarLarge"));
   $("#profilePreviewName").textContent = state.profile.nickname;
-  $("#profilePreviewMeta").textContent = `${state.profile.region} · ${state.profile.career}`;
+  $("#profilePreviewMeta").textContent = profileMetaText(state.profile.memberType, state.profile.region, state.profile.career);
   $("#profileNickname").value = state.profile.nickname;
   $("#profileRegion").value = state.profile.region;
   $("#profileCareer").value = state.profile.career;
@@ -4224,9 +4275,22 @@ function renderProfile() {
   $("#profileHair").value = state.profile.hair;
   $("#profileMood").value = state.profile.mood;
   $("#profileBio").value = state.profile.bio;
+  document.querySelectorAll(".member-type-option").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.memberType === state.profile.memberType);
+  });
   document.querySelectorAll(".swatch").forEach((swatch) => {
     swatch.classList.toggle("is-selected", swatch.dataset.color === state.profile.color);
   });
+}
+
+function memberTypeLabel(memberType) {
+  return memberType === "golfer" ? "골퍼" : "캐디";
+}
+
+function profileMetaText(memberType, region, career) {
+  return memberType === "golfer"
+    ? `${memberTypeLabel(memberType)} · ${region}`
+    : `${memberTypeLabel(memberType)} · ${region} · ${career}`;
 }
 
 function renderCharacter(element) {
@@ -4240,6 +4304,7 @@ function renderCharacter(element) {
       <span class="character-eye right"></span>
       <span class="character-mouth"></span>
     </span>
+    ${state.profile.memberType === "caddie" ? `<span class="member-badge" aria-label="캐디 인증">★</span>` : ""}
   `;
 }
 
@@ -4252,7 +4317,7 @@ function updateProfilePreviewFromForm() {
   state.profile.mood = $("#profileMood").value;
   renderCharacter($("#profileAvatarLarge"));
   $("#profilePreviewName").textContent = nickname;
-  $("#profilePreviewMeta").textContent = `${region} · ${career}`;
+  $("#profilePreviewMeta").textContent = profileMetaText(state.profile.memberType, region, career);
 }
 
 function renderJobs() {
@@ -4675,6 +4740,46 @@ function deleteMarketItem(itemId) {
   renderMarketItems();
 }
 
+function renderSupportRequests() {
+  $("#supportList").innerHTML = state.supportRequests
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map(
+      (request) => `
+        <article class="card">
+          <div class="talk-meta-row">
+            <span class="pill">${escapeHtml(request.type)}</span>
+            <span class="meta">${escapeHtml(request.author)} · ${formatTalkDate(request.createdAt)}</span>
+          </div>
+          <h3>${escapeHtml(request.title)}</h3>
+          <p>${escapeHtml(request.body)}</p>
+          <span class="pill support-status ${request.status === "처리완료" ? "is-done" : ""}">${escapeHtml(request.status)}</span>
+        </article>
+      `
+    )
+    .join("") || `<div class="empty-state">아직 문의 내역이 없습니다.</div>`;
+}
+
+function findSupportRequest(requestId) {
+  return state.supportRequests.find((request) => request.id === requestId);
+}
+
+function changeSupportStatus(requestId, status) {
+  const request = findSupportRequest(requestId);
+  if (!request) return;
+  request.status = status;
+  saveSupportData();
+  renderSupportRequests();
+  renderAdmin();
+}
+
+function deleteSupportRequest(requestId) {
+  state.supportRequests = state.supportRequests.filter((request) => request.id !== requestId);
+  saveSupportData();
+  renderSupportRequests();
+  renderAdmin();
+}
+
 function pauseAllReelVideos(exceptVideo = null) {
   document.querySelectorAll("#reelList video").forEach((video) => {
     if (video !== exceptVideo) video.pause();
@@ -4984,6 +5089,7 @@ function renderAdmin() {
   renderAdminReports(reportedTalks, reportedReviews);
   renderAdminJobs();
   renderAdminCommunity();
+  renderAdminSupport();
 }
 
 function renderAdminReports(reportedTalks, reportedReviews) {
@@ -5055,6 +5161,31 @@ function renderAdminCommunity() {
     .join("") || `<div class="empty-state">수다방 글이 없습니다.</div>`;
 }
 
+function renderAdminSupport() {
+  $("#adminSupport").innerHTML = state.supportRequests
+    .slice()
+    .sort((a, b) => {
+      if (a.status !== b.status) return a.status === "접수" ? -1 : 1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    })
+    .map(
+      (request) => `
+        <article class="admin-item">
+          <span class="pill support-status ${request.status === "처리완료" ? "is-done" : ""}">${escapeHtml(request.status)}</span>
+          <h3>${escapeHtml(request.title)}</h3>
+          <p>${escapeHtml(request.type)} · ${escapeHtml(request.author)} · ${formatTalkDate(request.createdAt)}</p>
+          <p>${escapeHtml(request.body)}</p>
+          ${request.contact ? `<p>연락처 ${escapeHtml(request.contact)}</p>` : ""}
+          <div class="admin-actions">
+            <button class="ghost-button admin-complete-support" data-support-id="${request.id}">처리완료</button>
+            <button class="primary-button admin-delete-support" data-support-id="${request.id}">삭제</button>
+          </div>
+        </article>
+      `
+    )
+    .join("") || `<div class="empty-state">접수된 1:1 문의가 없습니다.</div>`;
+}
+
 function switchAdminPanel(panelName) {
   document.querySelectorAll(".admin-tab").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.adminPanel === panelName);
@@ -5062,6 +5193,7 @@ function switchAdminPanel(panelName) {
   $("#adminReports").classList.toggle("is-visible", panelName === "reports");
   $("#adminJobs").classList.toggle("is-visible", panelName === "jobs");
   $("#adminCommunity").classList.toggle("is-visible", panelName === "community");
+  $("#adminSupport").classList.toggle("is-visible", panelName === "support");
 }
 
 function hideTalk(talkId) {
@@ -5767,6 +5899,29 @@ $("#reviewForm").addEventListener("submit", (event) => {
   renderAdmin();
 });
 
+$("#submitSupport").addEventListener("click", () => {
+  $("#supportForm").requestSubmit();
+});
+
+$("#supportForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  state.supportRequests.unshift({
+    id: `support-${Date.now()}`,
+    type: $("#supportType").value,
+    title: $("#supportTitle").value,
+    body: $("#supportBody").value,
+    contact: $("#supportContact").value.trim(),
+    author: state.profile.nickname,
+    status: "접수",
+    createdAt: new Date().toISOString(),
+  });
+  saveSupportData();
+  resetForm("#supportForm");
+  renderSupportRequests();
+  renderAdmin();
+  alert("1:1 문의가 접수되었습니다.");
+});
+
 $("#refreshWeather").addEventListener("click", fetchGolfWeather);
 $("#weatherCourseSelect").addEventListener("change", fetchGolfWeather);
 $("#weatherForecastHours").addEventListener("change", fetchGolfWeather);
@@ -5786,6 +5941,8 @@ $("#admin").addEventListener("click", (event) => {
   const openJobButton = event.target.closest(".admin-open-job");
   const reportTalkButton = event.target.closest(".admin-report-talk");
   const openTalkButton = event.target.closest(".admin-open-talk");
+  const completeSupportButton = event.target.closest(".admin-complete-support");
+  const deleteSupportButton = event.target.closest(".admin-delete-support");
 
   if (clearTalkButton) clearTalkReport(clearTalkButton.dataset.talkId);
   if (hideTalkButton) hideTalk(hideTalkButton.dataset.talkId);
@@ -5803,6 +5960,8 @@ $("#admin").addEventListener("click", (event) => {
     }
   }
   if (openTalkButton) openTalkDetail(openTalkButton.dataset.talkId);
+  if (completeSupportButton) changeSupportStatus(completeSupportButton.dataset.supportId, "처리완료");
+  if (deleteSupportButton) deleteSupportRequest(deleteSupportButton.dataset.supportId);
 });
 
 $("#loadKakaoMap").addEventListener("click", renderKakaoMap);
@@ -5835,10 +5994,20 @@ document.querySelectorAll(".swatch").forEach((swatch) => {
   });
 });
 
+document.querySelectorAll(".member-type-option").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.profile.memberType = button.dataset.memberType;
+    document.querySelectorAll(".member-type-option").forEach((item) => item.classList.remove("is-selected"));
+    button.classList.add("is-selected");
+    renderProfile();
+  });
+});
+
 $("#profileForm").addEventListener("submit", (event) => {
   event.preventDefault();
   state.profile = {
     ...state.profile,
+    memberType: state.profile.memberType || "caddie",
     nickname: $("#profileNickname").value.trim(),
     region: $("#profileRegion").value,
     career: $("#profileCareer").value,
@@ -5859,6 +6028,7 @@ loadJobData();
 loadTalkData();
 loadReelData();
 loadMarketData();
+loadSupportData();
 loadReviewData();
 mergeExternalGolfCourses();
 $("#incomeDate").valueAsDate = new Date();
@@ -5870,6 +6040,7 @@ renderIncome();
 renderTalks();
 renderReels();
 renderMarketItems();
+renderSupportRequests();
 renderReviews();
 renderWeatherCourses();
 renderWeather();

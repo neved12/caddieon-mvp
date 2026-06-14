@@ -38,6 +38,7 @@
         <button class="tab" data-view="reviews">리뷰</button>
         <button class="tab" data-view="weather">날씨</button>
         <button class="tab" data-view="map">맛집지도</button>
+        <button class="tab" data-view="support">1:1 문의</button>
         <button class="tab" data-view="admin">관리</button>
       </nav>
 
@@ -374,6 +375,34 @@
         <div class="card-list" id="reviewList"></div>
       </section>
 
+      <section id="support" class="view">
+        <div class="section-head">
+          <h2>1:1 문의</h2>
+          <button class="primary-button" id="submitSupport">문의 보내기</button>
+        </div>
+        <form class="post-box support-form" id="supportForm">
+          <div class="input-grid">
+            <label>
+              문의 유형
+              <select id="supportType">
+                <option>질문</option>
+                <option>수정 요청</option>
+                <option>반영 요청</option>
+                <option>신고/불편</option>
+                <option>기타</option>
+              </select>
+            </label>
+            <label>
+              연락처
+              <input type="text" id="supportContact" placeholder="전화번호, 카톡 ID, 이메일 등" />
+            </label>
+          </div>
+          <input type="text" id="supportTitle" placeholder="문의 제목을 적어주세요" required />
+          <textarea id="supportBody" rows="5" placeholder="관리자에게 요청할 내용을 자세히 적어주세요." required></textarea>
+        </form>
+        <div class="card-list" id="supportList"></div>
+      </section>
+
       <section id="weather" class="view">
         <div class="section-head">
           <h2>골프장 날씨</h2>
@@ -477,10 +506,12 @@
           <button class="admin-tab is-active" data-admin-panel="reports">신고</button>
           <button class="admin-tab" data-admin-panel="jobs">공고</button>
           <button class="admin-tab" data-admin-panel="community">커뮤니티</button>
+          <button class="admin-tab" data-admin-panel="support">문의</button>
         </div>
         <div class="admin-panel is-visible" id="adminReports"></div>
         <div class="admin-panel" id="adminJobs"></div>
         <div class="admin-panel" id="adminCommunity"></div>
+        <div class="admin-panel" id="adminSupport"></div>
       </section>
     </main>
 
@@ -613,6 +644,13 @@
           <span id="profilePreviewMeta">경기 · 3년차 캐디</span>
         </div>
         <form class="input-grid" id="profileForm">
+          <div class="wide member-type-field" role="group" aria-label="회원 유형 선택">
+            <span>회원 유형</span>
+            <div class="member-type-toggle">
+              <button type="button" class="member-type-option is-selected" data-member-type="caddie">캐디</button>
+              <button type="button" class="member-type-option" data-member-type="golfer">골퍼</button>
+            </div>
+          </div>
           <label>
             닉네임
             <input type="text" id="profileNickname" maxlength="12" required />
@@ -685,6 +723,6 @@
     </div>
 
     <script src="./config.js"></script>
-    <script src="./app.js?v=20260614-reels-free"></script>
+    <script src="./app.js?v=20260614-support-label"></script>
   </body>
 </html>

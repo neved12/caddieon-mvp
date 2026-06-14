@@ -214,6 +214,30 @@ button {
   top: 9%;
 }
 
+.member-badge {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #f5b301;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.avatar-large .member-badge {
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+}
+
 .character-avatar[data-hair="bob"]::after {
   height: 38%;
   border-radius: 48% 48% 52% 52%;
@@ -698,6 +722,36 @@ textarea:focus {
   gap: 10px;
 }
 
+.member-type-field {
+  display: grid;
+  gap: 8px;
+}
+
+.member-type-field > span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.member-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.member-type-option {
+  min-height: 42px;
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--brand-strong);
+  font-weight: 900;
+}
+
+.member-type-option.is-selected {
+  background: var(--brand);
+  color: #fff;
+}
+
 .talk-card.is-reported {
   background: #fff8f7;
   border-color: #f0c3bc;
@@ -883,6 +937,15 @@ textarea:focus {
 
 .market-actions .market-delete {
   color: var(--danger);
+}
+
+.support-status {
+  width: fit-content;
+}
+
+.support-status.is-done {
+  background: #e8f7ef;
+  color: var(--brand-strong);
 }
 
 .report-note {
